@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LANDING_IMAGES } from "@/lib/images";
 import { COMBO_CONFIG, formatVnd, getComboFormLabel, getComboPackageNote } from "@/lib/orders";
 import type { ComboId } from "@/lib/types";
 import { LandingImage } from "@/components/landing/LandingImage";
 
 export function LandingPage() {
+  const router = useRouter();
   const [navSolid, setNavSolid] = useState(false);
   const [cd, setCd] = useState({ h: "00", m: "00", s: "00" });
   const [stock, setStock] = useState(47);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,14 +76,8 @@ export function LandingPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Lỗi đặt hàng");
-      setSuccess(
-        `Cảm ơn bạn! Đơn ${data.order_code} đã được ghi nhận. Chúng tôi sẽ gọi xác nhận trong 15 phút. Hotline: 0916 188 330`
-      );
-      e.currentTarget.reset();
-      const sel = e.currentTarget.querySelector(
-        'select[name="combo"]'
-      ) as HTMLSelectElement;
-      if (sel) sel.value = "2";
+      const ma = encodeURIComponent(data.order_code || "");
+      router.push(ma ? `/cam-on?ma=${ma}` : "/cam-on");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không thể gửi đơn");
     } finally {
@@ -412,11 +407,6 @@ export function LandingPage() {
             </h2>
             <p className="sec-desc">Giao 24–48h · Thanh toán khi nhận · Kiểm hàng trước</p>
           </header>
-          {success && (
-            <p className="order-success reveal" role="status">
-              {success}
-            </p>
-          )}
           {error && (
             <p className="order-error reveal" role="alert">
               {error}
