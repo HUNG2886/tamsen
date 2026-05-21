@@ -1,0 +1,25 @@
+SỬA LỖI TRANG https://www.shopvietnhat.site/tamsen
+=================================================
+
+Nguyên nhân:
+1. HTML nhúng trong Webcake bị overflow:hidden → ảnh hero vỡ
+2. CSS body không áp dụng đúng trong khối Ladi/Webcake
+3. Ảnh cần URL đầy đủ https://www.shopvietnhat.site/tam_sen_X.png
+4. Popup "Expired or Invalid Code" = lỗi gói/mã Webcake (vào Cài đặt trang → tắt mã affiliate / gia hạn Webcake)
+
+CÁCH 1 – Import lại .pke (đã sửa)
+---------------------------------
+1. Webcake → Import file: tra_tam_sen.pke (trong thư mục TÂM SEN)
+2. Xuất bản lại trang /tamsen
+3. Đảm bảo 5 ảnh vẫn ở thư mục gốc site (đã có /tam_sen_5.png ...)
+
+CÁCH 2 – Dùng HTML tĩnh (ổn định nhất)
+--------------------------------------
+1. Upload thư mục publish/ lên hosting → trỏ /tamsen/ vào publish/index.html
+   HOẶC Webcake: Xuất HTML / dán nội dung publish/index.html
+2. Giữ 5 file ảnh ở root domain (đã upload)
+
+Build lại file:
+  cd C:\Users\hungp\.cursor\projects\c-PJMKT-T-M-SEN\tools
+  node build_html_design_pke.mjs
+  node build_publish_html.mjs

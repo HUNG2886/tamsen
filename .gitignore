@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+web/node_modules/
+
+# Next.js
+web/.next/
+web/out/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+web/.env.local
+
+# Build / tooling
+.vercel
+*.tsbuildinfo
+web/next-env.d.ts
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Large / generated exports (giữ local, không đẩy GitHub)
+publish/
+*.pke
+sen-say.decoded.json

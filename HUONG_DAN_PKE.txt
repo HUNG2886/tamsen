@@ -1,0 +1,24 @@
+ĐỊNH DẠNG .PKE WEBCAKE (QUAN TRỌNG)
+====================================
+
+File ĐÚNG để import Webcake:
+  → tra_tam_sen.pke  (~450 KB, 11 section – giống sen-say.pke)
+
+File KHÔNG dùng import (chỉ thử nghiệm HTML nhúng):
+  → tra_tam_sen_html_embed.pke
+
+CÁCH TẠO LẠI tra_tam_sen.pke
+----------------------------
+cd C:\Users\hungp\.cursor\projects\c-PJMKT-T-M-SEN\tools
+node build_tra_tam_sen_pke.mjs
+
+Sửa URL ảnh: config\webcake-images.json (thumbnail = URL Webcake CDN)
+
+IMPORT
+------
+Webcake → Import → chọn tra_tam_sen.pke → Publish
+
+THIẾT KẾ HTML GỐC (index.html)
+------------------------------
+Webcake .pke không giữ được layout HTML tùy chỉnh như file index.html.
+Muốn đúng thiết kế ban đầu: dùng publish\index.html upload hosting.

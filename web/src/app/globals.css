@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --admin-ink: #141210;
+  --admin-paper: #f6f1e8;
+  --admin-gold: #b8956a;
+  --admin-jade: #4d6358;
+}
+
+body {
+  margin: 0;
+}

@@ -1,0 +1,23 @@
+/* Ẩn số chương 01–09 (đã bỏ trong JSX) */
+.sec-num {
+  display: none !important;
+}
+
+.order-success {
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+  background: #e8f0eb;
+  border: 1px solid var(--jade);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--jade-deep);
+}
+
+.order-error {
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+  background: #fce8e8;
+  border: 1px solid #c44;
+  font-size: 0.88rem;
+  color: #822;
+}
