@@ -85,8 +85,8 @@ export function UsersPanel() {
         <input
           type="password"
           required
-          minLength={8}
-          placeholder="Mật khẩu (tối thiểu 8 ký tự)"
+          minLength={6}
+          placeholder="Mật khẩu (tối thiểu 6 ký tự)"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           className="border px-3 py-2 text-sm"

@@ -24,9 +24,9 @@ export async function GET() {
 }
 
 const createSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  full_name: z.string().min(1),
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
+  full_name: z.string().min(1, "Nhập họ tên"),
   role: z.enum(["admin", "sale", "shipping"]),
 });
 
@@ -38,7 +38,8 @@ export async function POST(request: Request) {
 
   const parsed = createSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+    const message = parsed.error.issues.map((i) => i.message).join(". ") || "Dữ liệu không hợp lệ";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   const { email, password, full_name, role } = parsed.data;

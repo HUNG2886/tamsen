@@ -38,9 +38,11 @@ function LoginForm() {
     if (err) {
       setLoading(false);
       setError(
-        err.message.includes("Invalid login credentials")
-          ? "Email hoặc mật khẩu không đúng. Nếu mới cấu hình Supabase, chạy trong thư mục web: npm run seed:admin"
-          : err.message
+        err.message.includes("Invalid API key")
+          ? "Sai Supabase API key trên Vercel. Kiểm tra NEXT_PUBLIC_SUPABASE_URL và NEXT_PUBLIC_SUPABASE_ANON_KEY (anon public), sau đó Redeploy."
+          : err.message.includes("Invalid login credentials")
+            ? "Email hoặc mật khẩu không đúng. Chạy: npm run seed:admin trong thư mục web."
+            : err.message
       );
       return;
     }

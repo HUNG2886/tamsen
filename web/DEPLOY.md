@@ -33,6 +33,8 @@ npm run seed:admin
    - `SUPABASE_SERVICE_ROLE_KEY`
 4. Deploy.
 
+**Quan trọng:** Sau khi thêm/sửa biến `NEXT_PUBLIC_*`, bắt buộc **Redeploy** — Next.js nhúng các biến này lúc build. Không redeploy sẽ lỗi **Invalid API key** khi đăng nhập.
+
 ## 4. Domain (tamsen.site)
 
 **Production:** https://www.tamsen.site/
