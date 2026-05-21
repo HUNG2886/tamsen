@@ -71,12 +71,18 @@ Domain trỏ vào Vercel nhưng **DNS chưa Valid** hoặc domain gắn **sai pr
 2. **Production**: tắt **Vercel Authentication** / **Password Protection** (hoặc chỉ bật cho Preview).
 3. Save → **Redeploy** → bấm **Visit** lại.
 
-### Visit vẫn 404 sau khi deploy Ready
+### Visit vẫn 404 sau khi deploy Ready (domain Valid mà vẫn NOT_FOUND)
 
-1. **Settings → Build and Deployment → Root Directory** = `web` (không phải `./`).
-2. Tắt **Include files outside the root directory in the Build Step** (khi đã dùng root `web`).
-3. **Deployments** → bản Ready → URL dạng `tamsen-xxxxx.vercel.app` (copy từ deployment, không đoán).
-4. **Redeploy** + bật **Clear build cache**.
+Nguyên nhân hay gặp: build chạy sai thư mục hoặc gộp file repo gốc (HTML cũ) vào deploy.
+
+1. **Settings → Build and Deployment**
+   - **Root Directory** = `web` → **Save**
+   - **Tắt** “Include files outside the root directory in the Build Step” → **Save**
+   - **Output Directory** = để mặc định (Override **tắt**)
+2. **Settings → General → Node.js Version** = **20.x** (không dùng 24 nếu lỗi lạ)
+3. **Deployments** → **Redeploy** + **Clear build cache**
+4. Mở **Build Logs** — phải thấy `Route (app) /` và `/admin/login`. Nếu không có → Root Directory vẫn sai.
+5. Bấm **Visit** trên deployment mới (URL `.vercel.app` trên card). Cả URL này phải mở được trước khi test domain.
 
 ### Checklist
 
