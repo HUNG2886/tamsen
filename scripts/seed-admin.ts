@@ -1,13 +1,13 @@
 /**
- * Chạy sau khi cấu hình web/.env.local:
- * npm run seed:admin
+ * Chạy từ thư mục web/: npm run seed:admin
+ * (file nằm ngoài web/ để Vercel build không typecheck)
  */
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { createClient } from "@supabase/supabase-js";
 
 function loadEnvLocal() {
-  const path = resolve(__dirname, "../.env.local");
+  const path = resolve(__dirname, "../web/.env.local");
   try {
     const text = readFileSync(path, "utf8");
     for (const line of text.split(/\r?\n/)) {
@@ -20,7 +20,7 @@ function loadEnvLocal() {
       process.env[key] = value;
     }
   } catch {
-    console.warn("Không đọc được .env.local — dùng biến môi trường hệ thống");
+    console.warn("Không đọc được web/.env.local — dùng biến môi trường hệ thống");
   }
 }
 
@@ -32,7 +32,7 @@ const email = process.env.SEED_ADMIN_EMAIL ?? "admin@tamsen.vn";
 const password = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
 
 if (!url || !serviceKey) {
-  console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
+  console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in web/.env.local");
   process.exit(1);
 }
 
@@ -75,7 +75,7 @@ async function main() {
     if (profileError) {
       console.error("Lỗi ghi profiles:", profileError.message);
       console.error(
-        "→ Chạy file supabase/migrations/001_init.sql trong Supabase SQL Editor trước."
+        "→ Chạy file web/supabase/migrations/001_init.sql trong Supabase SQL Editor trước."
       );
       process.exit(1);
     }
@@ -93,7 +93,7 @@ async function main() {
 
   console.log("Done. Login at /admin/login");
   console.log(`  Email: ${email}`);
-  console.log(`  Password: (giá trị SEED_ADMIN_PASSWORD trong .env.local)`);
+  console.log(`  Password: (giá trị SEED_ADMIN_PASSWORD trong web/.env.local)`);
 }
 
 main().catch((e) => {

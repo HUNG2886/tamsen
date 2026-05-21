@@ -21,6 +21,8 @@ cp .env.example .env.local
 npm run seed:admin
 ```
 
+(Script nằm ở `scripts/seed-admin.ts` ngoài `web/` — không ảnh hưởng build Vercel.)
+
 ## 3. Vercel
 
 1. Import repo GitHub/GitLab.

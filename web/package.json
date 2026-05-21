@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed:admin": "tsx --env-file=.env.local scripts/seed-admin.ts"
+    "seed:admin": "tsx --env-file=.env.local ../scripts/seed-admin.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
