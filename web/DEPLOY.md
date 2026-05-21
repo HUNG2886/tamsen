@@ -31,11 +31,24 @@ npm run seed:admin
    - `SUPABASE_SERVICE_ROLE_KEY`
 4. Deploy.
 
-## 4. Domain
+## 4. Domain (tamsen.site)
 
-- Landing: `/` hoặc `/tra` (rewrite trong `vercel.json`)
-- Admin: `/admin/login`
-- Đơn hàng: `/admin/orders`
+**Production:** https://www.tamsen.site/
+
+| Trang | URL |
+|-------|-----|
+| Landing | https://www.tamsen.site/ |
+| Đăng nhập admin | https://www.tamsen.site/admin/login |
+| Đơn hàng | https://www.tamsen.site/admin/orders |
+
+Nếu `/admin/login` báo **404**: Vercel → Project → **Settings → General → Root Directory** phải là **`web`**, sau đó **Deployments → Redeploy** (bản mới nhất từ GitHub `main`).
+
+**Supabase → Authentication → URL Configuration:**
+
+- Site URL: `https://www.tamsen.site`
+- Redirect URLs: `https://www.tamsen.site/**`
+
+Landing cũng có rewrite: `/tra` → `/` (trong `vercel.json`).
 
 ## 5. Vai trò
 

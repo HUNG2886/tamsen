@@ -53,7 +53,7 @@ async function main() {
     if (error) throw error;
     userId = data.user.id;
     console.log("Created user:", email);
-  } else {
+  } else if (userId) {
     const { error } = await supabase.auth.admin.updateUserById(userId, {
       password,
       email_confirm: true,
