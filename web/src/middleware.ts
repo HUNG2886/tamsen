@@ -1,20 +1,31 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getSupabaseEnv } from "@/lib/env";
+import { getSupabaseEnv, isSupabaseConfigured } from "@/lib/env";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   let url: string;
   let anonKey: string;
+  const path = request.nextUrl.pathname;
+  const isSetup = path === "/admin/setup";
+
+  if (!isSupabaseConfigured()) {
+    if (path.startsWith("/admin") && !isSetup) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/setup";
+      return NextResponse.redirect(url);
+    }
+    return response;
+  }
+
   try {
     ({ url, anonKey } = getSupabaseEnv());
   } catch {
-    if (request.nextUrl.pathname.startsWith("/admin")) {
-      return new NextResponse(
-        "Thiếu Supabase env. Tạo web/.env.local từ .env.example và điền URL + Key.",
-        { status: 503 }
-      );
+    if (path.startsWith("/admin") && !isSetup) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/setup";
+      return NextResponse.redirect(url);
     }
     return response;
   }
@@ -44,11 +55,10 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
   const isAdmin = path.startsWith("/admin");
   const isLogin = path === "/admin/login";
 
-  if (!isAdmin) return response;
+  if (!isAdmin || isSetup) return response;
 
   if (!user && !isLogin) {
     const url = request.nextUrl.clone();

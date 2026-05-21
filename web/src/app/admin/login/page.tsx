@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/client";
 
 function LoginForm() {
@@ -16,16 +17,44 @@ function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!isSupabaseConfigured()) {
+      router.push("/admin/setup");
+      return;
+    }
     setLoading(true);
     setError("");
-    const supabase = createClient();
-    const { error: err } = await supabase.auth.signInWithPassword({
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch {
+      setLoading(false);
+      setError("Chưa cấu hình Supabase. Xem hướng dẫn tại /admin/setup");
+      return;
+    }
+    const { data, error: err } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    setLoading(false);
     if (err) {
-      setError("Email hoặc mật khẩu không đúng");
+      setLoading(false);
+      setError(
+        err.message.includes("Invalid login credentials")
+          ? "Email hoặc mật khẩu không đúng. Nếu mới cấu hình Supabase, chạy trong thư mục web: npm run seed:admin"
+          : err.message
+      );
+      return;
+    }
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+    setLoading(false);
+    if (!profile) {
+      await supabase.auth.signOut();
+      setError(
+        "Tài khoản chưa có quyền staff. Chạy npm run seed:admin trong thư mục web (sau khi cấu hình .env.local)."
+      );
       return;
     }
     router.push(next);
@@ -72,6 +101,14 @@ function LoginForm() {
         >
           {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </button>
+        {!isSupabaseConfigured() && (
+          <p className="mt-4 text-sm text-amber-900 bg-amber-50 px-3 py-2">
+            Supabase chưa cấu hình.{" "}
+            <Link href="/admin/setup" className="underline font-medium">
+              Xem hướng dẫn thiết lập
+            </Link>
+          </p>
+        )}
         <p className="mt-4 text-center">
           <Link href="/" className="text-xs text-[#6f665c] hover:text-[#4d6358]">
             ← Về trang bán hàng

@@ -82,7 +82,11 @@ as $$
   select role from public.profiles where id = auth.uid();
 $$;
 
--- Profiles: staff read all; admin update roles
+-- Profiles: đọc profile của mình; staff đọc tất cả
+create policy profiles_select_own on public.profiles
+for select to authenticated
+using (id = auth.uid());
+
 create policy profiles_select_staff on public.profiles
 for select to authenticated
 using (public.current_user_role() is not null);

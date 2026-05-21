@@ -1,10 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/env";
 import type { Profile, UserRole } from "@/lib/types";
 
 export async function getSessionProfile(): Promise<{
   user: { id: string; email?: string };
   profile: Profile;
 } | null> {
+  if (!isSupabaseConfigured()) return null;
+
   const supabase = await createClient();
   const {
     data: { user },

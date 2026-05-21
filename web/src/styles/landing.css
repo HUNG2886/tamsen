@@ -20,6 +20,11 @@
   --pad: 1.35rem;
   --safe-b: env(safe-area-inset-bottom, 0px);
   --nav-h: 3.25rem;
+  /* Cỡ chữ lớn hơn — khách lớn tuổi (rem tính từ html bên dưới) */
+  --text-min: 0.8rem;
+  --text-label: 0.82rem;
+  --text-body: 1.05rem;
+  --text-btn: 0.82rem;
 }
 
 *,
@@ -33,12 +38,13 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  font-size: 18px;
 }
 
 body {
   font-family: var(--font-ui);
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.65;
   color: var(--ink);
   background: var(--ink);
 }
@@ -199,7 +205,7 @@ a {
 
 .hero-line {
   display: block;
-  font-size: clamp(2.6rem, 11vw, 3.4rem);
+  font-size: clamp(2.85rem, 11.5vw, 3.75rem);
   letter-spacing: -0.02em;
 }
 
@@ -207,7 +213,7 @@ a {
   font-style: italic;
   font-weight: 500;
   color: var(--gold);
-  font-size: clamp(2.2rem, 9.5vw, 2.9rem);
+  font-size: clamp(2.4rem, 10vw, 3.15rem);
   margin-top: 0.15rem;
 }
 
@@ -276,10 +282,10 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0.75rem 1.35rem;
+  min-height: 52px;
+  padding: 0.85rem 1.4rem;
   font-family: var(--font-ui);
-  font-size: 0.72rem;
+  font-size: var(--text-btn);
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -324,7 +330,7 @@ a {
 
 .sec-title {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 2.15rem;
   font-weight: 600;
   line-height: 1.15;
   color: var(--ink);
@@ -888,7 +894,7 @@ a {
 
 .order-sheet label > span {
   display: block;
-  font-size: 0.62rem;
+  font-size: var(--text-label);
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -902,12 +908,13 @@ a {
   width: 100%;
   padding: 0.8rem 0.85rem;
   font-family: var(--font-ui);
-  font-size: 0.95rem;
+  font-size: var(--text-body);
   color: var(--ink);
   background: var(--paper-2);
   border: 1px solid var(--line);
   border-radius: 0;
   appearance: none;
+  min-height: 48px;
 }
 
 .order-sheet input:focus,
@@ -1057,7 +1064,7 @@ a {
 
 .dock-price small {
   display: block;
-  font-size: 0.55rem;
+  font-size: var(--text-min);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-3);
@@ -1065,14 +1072,14 @@ a {
 
 .dock-price strong {
   font-family: var(--font-display);
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   color: var(--ink);
 }
 
 .btn-dock {
   flex: 1;
-  min-height: 44px;
-  font-size: 0.7rem;
+  min-height: 48px;
+  font-size: var(--text-btn);
   padding: 0.5rem;
 }
 

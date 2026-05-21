@@ -8,8 +8,8 @@
   margin-bottom: 1rem;
   background: #e8f0eb;
   border: 1px solid var(--jade);
-  font-size: 0.88rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.65;
   color: var(--jade-deep);
 }
 
@@ -18,6 +18,57 @@
   margin-bottom: 1rem;
   background: #fce8e8;
   border: 1px solid #c44;
-  font-size: 0.88rem;
+  font-size: 1rem;
   color: #822;
+}
+
+/* Nhãn / chữ phụ — tối thiểu dễ đọc (khách lớn tuổi) */
+.nav-wordmark,
+.nav-cta,
+.hero-chips li,
+.hero-kicker,
+.countdown-bar__label,
+.countdown-bar__time small,
+.concern p,
+.concern h3,
+.ritual-step p,
+.ritual-step h3,
+.step-char,
+.pillar > span,
+.pillar p,
+.craft-specs dd,
+.craft-specs dt,
+.proof-metrics span,
+.review-body,
+.review footer,
+.package-tag,
+.stock-line,
+.order-foot,
+.faq p,
+.footer-legal,
+.manifesto-sub {
+  font-size: max(var(--text-min), 0.85rem);
+}
+
+.package-note,
+.package-price-extra {
+  font-size: max(var(--text-min), 0.88rem);
+}
+
+.package-price strong {
+  font-size: 1.25rem;
+}
+
+.package-name {
+  font-size: 1.3rem;
+}
+
+.faq summary {
+  font-size: 1.05rem;
+}
+
+.sec-desc,
+.hero-lead {
+  font-size: 1.05rem;
+  line-height: 1.7;
 }

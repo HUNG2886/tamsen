@@ -1,3 +1,12 @@
+export function isSupabaseConfigured(): boolean {
+  try {
+    getSupabaseEnv();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function getSupabaseEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
