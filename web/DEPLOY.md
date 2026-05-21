@@ -52,6 +52,40 @@ Nếu `/admin/login` báo **404**: Vercel → Project → **Settings → General
 
 Landing cũng có rewrite: `/tra` → `/` (trong `vercel.json`).
 
+## 7. Lỗi 401 / 404 (Visit hoặc tamsen.site)
+
+### 404 `NOT_FOUND` (id `hkg1::...`) trên tamsen.site
+
+Domain trỏ vào Vercel nhưng **DNS chưa Valid** hoặc domain gắn **sai project**.
+
+1. **Settings → Domains** → `www.tamsen.site` → **Learn more** → sửa DNS tại nhà cung cấp domain:
+   - **CNAME** `www` → `cname.vercel-dns.com`
+2. Bấm **Refresh** → đợi **Valid** (hết “DNS Change Recommended”).
+3. Thêm `tamsen.site` → redirect sang `www` (nếu hay gõ không có www).
+
+### 401 khi bấm Visit trên Vercel
+
+**Deployment Protection** đang bật.
+
+1. **Settings → Deployment Protection**
+2. **Production**: tắt **Vercel Authentication** / **Password Protection** (hoặc chỉ bật cho Preview).
+3. Save → **Redeploy** → bấm **Visit** lại.
+
+### Visit vẫn 404 sau khi deploy Ready
+
+1. **Settings → Build and Deployment → Root Directory** = `web` (không phải `./`).
+2. Tắt **Include files outside the root directory in the Build Step** (khi đã dùng root `web`).
+3. **Deployments** → bản Ready → URL dạng `tamsen-xxxxx.vercel.app` (copy từ deployment, không đoán).
+4. **Redeploy** + bật **Clear build cache**.
+
+### Checklist
+
+- [ ] Root Directory = `web`
+- [ ] 3 biến env Supabase (Production)
+- [ ] Deployment Protection: Production không khóa
+- [ ] Domains: Valid
+- [ ] Commit deploy: `08971ae` trở lên
+
 ## 5. Vai trò
 
 | Role | Quyền |
