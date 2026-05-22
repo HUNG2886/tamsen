@@ -649,7 +649,7 @@ a {
   border: 1px solid var(--line);
 }
 
-.proof-metrics__accent {
+.proof-metrics > div.proof-metrics__accent {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--paper);

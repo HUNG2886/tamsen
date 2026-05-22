@@ -81,17 +81,31 @@ export function getComboPackageNote(combo: ComboId): string {
 export const STATUS_LABELS: Record<OrderStatus, string> = {
   moi: "Mới",
   da_xac_nhan: "Đã xác nhận",
+  chot_don: "Chốt đơn",
   dang_giao: "Đang giao",
   da_giao: "Đã giao",
+  khong_nghe: "Không nghe máy",
+  khong_mua: "Không mua",
   huy: "Đã hủy",
 };
 
 export const STATUS_OPTIONS: OrderStatus[] = [
   "moi",
   "da_xac_nhan",
+  "chot_don",
   "dang_giao",
   "da_giao",
+  "khong_nghe",
+  "khong_mua",
   "huy",
+];
+
+/** Trạng thái sale xử lý khi gọi khách (không thuộc vận đơn) */
+export const SALE_PIPELINE_STATUSES: OrderStatus[] = [
+  "da_xac_nhan",
+  "chot_don",
+  "khong_nghe",
+  "khong_mua",
 ];
 
 export function formatVnd(amount: number): string {

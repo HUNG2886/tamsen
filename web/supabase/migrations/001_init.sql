@@ -1,7 +1,16 @@
 -- Trà Tâm Sen: profiles + orders + RLS
 
 create type public.user_role as enum ('admin', 'sale', 'shipping');
-create type public.order_status as enum ('moi', 'da_xac_nhan', 'dang_giao', 'da_giao', 'huy');
+create type public.order_status as enum (
+  'moi',
+  'da_xac_nhan',
+  'chot_don',
+  'dang_giao',
+  'da_giao',
+  'khong_nghe',
+  'khong_mua',
+  'huy'
+);
 
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,

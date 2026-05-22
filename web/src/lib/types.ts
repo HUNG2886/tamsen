@@ -3,8 +3,11 @@ export type UserRole = "admin" | "sale" | "shipping";
 export type OrderStatus =
   | "moi"
   | "da_xac_nhan"
+  | "chot_don"
   | "dang_giao"
   | "da_giao"
+  | "khong_nghe"
+  | "khong_mua"
   | "huy";
 
 export type ComboId = 1 | 2 | 3;

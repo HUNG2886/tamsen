@@ -17,8 +17,11 @@ function statusBadge(status: OrderStatus) {
   const colors: Record<OrderStatus, string> = {
     moi: "bg-amber-100 text-amber-900",
     da_xac_nhan: "bg-blue-100 text-blue-900",
+    chot_don: "bg-emerald-100 text-emerald-900",
     dang_giao: "bg-purple-100 text-purple-900",
     da_giao: "bg-green-100 text-green-900",
+    khong_nghe: "bg-orange-100 text-orange-900",
+    khong_mua: "bg-rose-100 text-rose-900",
     huy: "bg-gray-200 text-gray-700",
   };
   return (
@@ -375,7 +378,34 @@ function OrderDetailForm({
             Xác nhận đơn
           </button>
         )}
-        {canUpdateShipping(role) && form.status === "da_xac_nhan" && (
+        {canConfirmOrder(role) &&
+          (form.status === "moi" || form.status === "da_xac_nhan") && (
+            <>
+              <button
+                type="button"
+                className="px-4 py-2 bg-emerald-700 text-white text-sm"
+                onClick={() => onSave({ status: "chot_don" })}
+              >
+                Chốt đơn
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 border border-orange-300 text-orange-900 text-sm"
+                onClick={() => onSave({ status: "khong_nghe" })}
+              >
+                Không nghe máy
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 border border-rose-300 text-rose-900 text-sm"
+                onClick={() => onSave({ status: "khong_mua" })}
+              >
+                Không mua
+              </button>
+            </>
+          )}
+        {canUpdateShipping(role) &&
+          (form.status === "da_xac_nhan" || form.status === "chot_don") && (
           <button
             type="button"
             className="px-4 py-2 border text-sm"

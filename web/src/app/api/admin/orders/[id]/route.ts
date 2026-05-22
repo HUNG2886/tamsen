@@ -6,7 +6,9 @@ import {
   canDeleteOrder,
   canEditCustomer,
   canUpdateShipping,
+  SALE_PIPELINE_STATUSES,
 } from "@/lib/orders";
+import type { OrderStatus } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 const patchSchema = z.object({
   customer_name: z.string().min(2).optional(),
@@ -15,7 +17,16 @@ const patchSchema = z.object({
   combo: z.coerce.number().int().min(1).max(3).optional(),
   note: z.string().max(300).optional().nullable(),
   status: z
-    .enum(["moi", "da_xac_nhan", "dang_giao", "da_giao", "huy"])
+    .enum([
+      "moi",
+      "da_xac_nhan",
+      "chot_don",
+      "dang_giao",
+      "da_giao",
+      "khong_nghe",
+      "khong_mua",
+      "huy",
+    ])
     .optional(),
   tracking_code: z.string().max(100).optional().nullable(),
   carrier: z.string().max(100).optional().nullable(),
@@ -51,8 +62,24 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (payload.status === "da_xac_nhan" && !canConfirmOrder(role)) {
+  if (
+    payload.status &&
+    SALE_PIPELINE_STATUSES.includes(payload.status as OrderStatus) &&
+    !canConfirmOrder(role) &&
+    role !== "admin"
+  ) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (payload.status === "huy" && role !== "admin" && !canConfirmOrder(role)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (payload.status && role === "shipping") {
+    const allowed: OrderStatus[] = ["dang_giao", "da_giao"];
+    if (!allowed.includes(payload.status as OrderStatus)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   if (
