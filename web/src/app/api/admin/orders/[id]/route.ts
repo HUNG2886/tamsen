@@ -6,28 +6,27 @@ import {
   canDeleteOrder,
   canEditCustomer,
   canUpdateShipping,
-  SALE_PIPELINE_STATUSES,
+  getComboTotalAmount,
 } from "@/lib/orders";
-import type { OrderStatus } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
+
 const patchSchema = z.object({
   customer_name: z.string().min(2).optional(),
   phone: z.string().min(9).optional(),
   address: z.string().min(5).optional(),
   combo: z.coerce.number().int().min(1).max(3).optional(),
   note: z.string().max(300).optional().nullable(),
-  status: z
+  sale_status: z
     .enum([
       "moi",
       "da_xac_nhan",
       "chot_don",
-      "dang_giao",
-      "da_giao",
       "khong_nghe",
       "khong_mua",
       "huy",
     ])
     .optional(),
+  shipping_status: z.enum(["cho_giao", "dang_giao", "da_giao"]).optional(),
   tracking_code: z.string().max(100).optional().nullable(),
   carrier: z.string().max(100).optional().nullable(),
   assigned_sale_id: z.string().uuid().optional().nullable(),
@@ -51,57 +50,67 @@ export async function PATCH(
 
   const role = session.profile.role;
   const payload = parsed.data;
+  const isAdmin = role === "admin";
 
   if (
     (payload.customer_name ||
       payload.phone ||
       payload.address ||
-      payload.combo !== undefined) &&
-    !canEditCustomer(role)
+      payload.combo !== undefined ||
+      payload.note !== undefined) &&
+    !canEditCustomer(role) &&
+    !isAdmin
   ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (payload.sale_status !== undefined && !canConfirmOrder(role) && !isAdmin) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   if (
-    payload.status &&
-    SALE_PIPELINE_STATUSES.includes(payload.status as OrderStatus) &&
-    !canConfirmOrder(role) &&
-    role !== "admin"
+    (payload.shipping_status !== undefined ||
+      payload.tracking_code !== undefined ||
+      payload.carrier !== undefined) &&
+    !canUpdateShipping(role) &&
+    !isAdmin
   ) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (payload.status === "huy" && role !== "admin" && !canConfirmOrder(role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const update: Record<string, unknown> = {};
 
-  if (payload.status && role === "shipping") {
-    const allowed: OrderStatus[] = ["dang_giao", "da_giao"];
-    if (!allowed.includes(payload.status as OrderStatus)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (isAdmin || canEditCustomer(role)) {
+    if (payload.customer_name !== undefined) update.customer_name = payload.customer_name;
+    if (payload.phone !== undefined) update.phone = payload.phone;
+    if (payload.address !== undefined) update.address = payload.address;
+    if (payload.combo !== undefined) {
+      update.combo = payload.combo;
+      update.amount = getComboTotalAmount(payload.combo as 1 | 2 | 3);
+    }
+    if (payload.note !== undefined) update.note = payload.note;
+    if (payload.assigned_sale_id !== undefined) {
+      update.assigned_sale_id = payload.assigned_sale_id;
     }
   }
 
-  if (
-    (payload.status === "dang_giao" || payload.status === "da_giao") &&
-    !canUpdateShipping(role) &&
-    role !== "admin"
-  ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (isAdmin || canConfirmOrder(role)) {
+    if (payload.sale_status !== undefined) update.sale_status = payload.sale_status;
   }
 
-  if (payload.tracking_code !== undefined && !canUpdateShipping(role) && role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (isAdmin || canUpdateShipping(role)) {
+    if (payload.shipping_status !== undefined) {
+      update.shipping_status = payload.shipping_status;
+    }
+    if (payload.tracking_code !== undefined) update.tracking_code = payload.tracking_code;
+    if (payload.carrier !== undefined) update.carrier = payload.carrier;
+  }
+
+  if (Object.keys(update).length === 0) {
+    return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
   const supabase = await createClient();
-  const update: Record<string, unknown> = { ...payload };
-
-  if (payload.combo) {
-    const { getComboTotalAmount } = await import("@/lib/orders");
-    update.amount = getComboTotalAmount(payload.combo as 1 | 2 | 3);
-  }
-
   const { data, error } = await supabase
     .from("orders")
     .update(update)

@@ -1,4 +1,4 @@
-import type { ComboId, OrderStatus, UserRole } from "./types";
+import type { ComboId, SaleStatus, ShippingStatus, UserRole } from "./types";
 
 export type ComboConfig = {
   label: string;
@@ -78,34 +78,34 @@ export function getComboPackageNote(combo: ComboId): string {
   return `${c.gift} · ${c.usageDuration}`;
 }
 
-export const STATUS_LABELS: Record<OrderStatus, string> = {
+export const SALE_STATUS_LABELS: Record<SaleStatus, string> = {
   moi: "Mới",
   da_xac_nhan: "Đã xác nhận",
   chot_don: "Chốt đơn",
-  dang_giao: "Đang giao",
-  da_giao: "Đã giao",
   khong_nghe: "Không nghe máy",
   khong_mua: "Không mua",
   huy: "Đã hủy",
 };
 
-export const STATUS_OPTIONS: OrderStatus[] = [
+export const SALE_STATUS_OPTIONS: SaleStatus[] = [
   "moi",
   "da_xac_nhan",
   "chot_don",
-  "dang_giao",
-  "da_giao",
   "khong_nghe",
   "khong_mua",
   "huy",
 ];
 
-/** Trạng thái sale xử lý khi gọi khách (không thuộc vận đơn) */
-export const SALE_PIPELINE_STATUSES: OrderStatus[] = [
-  "da_xac_nhan",
-  "chot_don",
-  "khong_nghe",
-  "khong_mua",
+export const SHIPPING_STATUS_LABELS: Record<ShippingStatus, string> = {
+  cho_giao: "Chờ giao",
+  dang_giao: "Đang giao",
+  da_giao: "Đã giao",
+};
+
+export const SHIPPING_STATUS_OPTIONS: ShippingStatus[] = [
+  "cho_giao",
+  "dang_giao",
+  "da_giao",
 ];
 
 export function formatVnd(amount: number): string {

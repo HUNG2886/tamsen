@@ -3,30 +3,43 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   COMBO_LABELS,
-  STATUS_LABELS,
-  STATUS_OPTIONS,
+  SALE_STATUS_LABELS,
+  SALE_STATUS_OPTIONS,
+  SHIPPING_STATUS_LABELS,
+  SHIPPING_STATUS_OPTIONS,
   canConfirmOrder,
   canDeleteOrder,
   canEditCustomer,
   canUpdateShipping,
   formatVnd,
 } from "@/lib/orders";
-import type { Order, OrderStatus, UserRole } from "@/lib/types";
+import type { Order, SaleStatus, ShippingStatus, UserRole } from "@/lib/types";
 
-function statusBadge(status: OrderStatus) {
-  const colors: Record<OrderStatus, string> = {
+function saleStatusBadge(status: SaleStatus) {
+  const colors: Record<SaleStatus, string> = {
     moi: "bg-amber-100 text-amber-900",
     da_xac_nhan: "bg-blue-100 text-blue-900",
     chot_don: "bg-emerald-100 text-emerald-900",
-    dang_giao: "bg-purple-100 text-purple-900",
-    da_giao: "bg-green-100 text-green-900",
     khong_nghe: "bg-orange-100 text-orange-900",
     khong_mua: "bg-rose-100 text-rose-900",
     huy: "bg-gray-200 text-gray-700",
   };
   return (
     <span className={`px-2 py-0.5 text-xs font-medium rounded ${colors[status]}`}>
-      {STATUS_LABELS[status]}
+      {SALE_STATUS_LABELS[status]}
+    </span>
+  );
+}
+
+function shippingStatusBadge(status: ShippingStatus) {
+  const colors: Record<ShippingStatus, string> = {
+    cho_giao: "bg-slate-100 text-slate-800",
+    dang_giao: "bg-purple-100 text-purple-900",
+    da_giao: "bg-green-100 text-green-900",
+  };
+  return (
+    <span className={`px-2 py-0.5 text-xs font-medium rounded ${colors[status]}`}>
+      {SHIPPING_STATUS_LABELS[status]}
     </span>
   );
 }
@@ -36,7 +49,10 @@ export function OrdersPanel({ role }: { role: UserRole }) {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<OrderStatus | "all">("all");
+  const [saleStatus, setSaleStatus] = useState<SaleStatus | "all">("all");
+  const [shippingStatus, setShippingStatus] = useState<ShippingStatus | "all">(
+    "all"
+  );
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Order | null>(null);
   const [saving, setSaving] = useState(false);
@@ -49,7 +65,8 @@ export function OrdersPanel({ role }: { role: UserRole }) {
       pageSize: String(pageSize),
     });
     if (q) params.set("q", q);
-    if (status !== "all") params.set("status", status);
+    if (saleStatus !== "all") params.set("sale_status", saleStatus);
+    if (shippingStatus !== "all") params.set("shipping_status", shippingStatus);
     const res = await fetch(`/api/admin/orders?${params}`);
     const data = await res.json();
     if (res.ok) {
@@ -57,7 +74,7 @@ export function OrdersPanel({ role }: { role: UserRole }) {
       setTotal(data.total);
     }
     setLoading(false);
-  }, [page, q, status]);
+  }, [page, q, saleStatus, shippingStatus]);
 
   useEffect(() => {
     load();
@@ -112,17 +129,32 @@ export function OrdersPanel({ role }: { role: UserRole }) {
           className="flex-1 min-w-[200px] px-3 py-2 border border-[#d4c9b8] bg-white text-sm"
         />
         <select
-          value={status}
+          value={saleStatus}
           onChange={(e) => {
-            setStatus(e.target.value as OrderStatus | "all");
+            setSaleStatus(e.target.value as SaleStatus | "all");
             setPage(1);
           }}
           className="px-3 py-2 border border-[#d4c9b8] bg-white text-sm"
         >
-          <option value="all">Tất cả trạng thái</option>
-          {STATUS_OPTIONS.map((s) => (
+          <option value="all">Tất cả — Sale</option>
+          {SALE_STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>
-              {STATUS_LABELS[s]}
+              {SALE_STATUS_LABELS[s]}
+            </option>
+          ))}
+        </select>
+        <select
+          value={shippingStatus}
+          onChange={(e) => {
+            setShippingStatus(e.target.value as ShippingStatus | "all");
+            setPage(1);
+          }}
+          className="px-3 py-2 border border-[#d4c9b8] bg-white text-sm"
+        >
+          <option value="all">Tất cả — Vận chuyển</option>
+          {SHIPPING_STATUS_OPTIONS.map((s) => (
+            <option key={s} value={s}>
+              {SHIPPING_STATUS_LABELS[s]}
             </option>
           ))}
         </select>
@@ -144,20 +176,21 @@ export function OrdersPanel({ role }: { role: UserRole }) {
               <th className="px-4 py-3">SĐT</th>
               <th className="px-4 py-3">Gói</th>
               <th className="px-4 py-3">Tiền</th>
-              <th className="px-4 py-3">Trạng thái</th>
+              <th className="px-4 py-3">Sale</th>
+              <th className="px-4 py-3">Vận chuyển</th>
               <th className="px-4 py-3">Ngày</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-[#6f665c]">
+                <td colSpan={8} className="px-4 py-8 text-center text-[#6f665c]">
                   Đang tải...
                 </td>
               </tr>
             ) : orders.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-[#6f665c]">
+                <td colSpan={8} className="px-4 py-8 text-center text-[#6f665c]">
                   Không có đơn
                 </td>
               </tr>
@@ -173,7 +206,10 @@ export function OrdersPanel({ role }: { role: UserRole }) {
                   <td className="px-4 py-3">{o.phone}</td>
                   <td className="px-4 py-3">{COMBO_LABELS[o.combo]}</td>
                   <td className="px-4 py-3">{formatVnd(o.amount)}</td>
-                  <td className="px-4 py-3">{statusBadge(o.status)}</td>
+                  <td className="px-4 py-3">{saleStatusBadge(o.sale_status)}</td>
+                  <td className="px-4 py-3">
+                    {shippingStatusBadge(o.shipping_status)}
+                  </td>
                   <td className="px-4 py-3 text-[#6f665c]">
                     {new Date(o.created_at).toLocaleString("vi-VN")}
                   </td>
@@ -248,6 +284,9 @@ function OrderDetailForm({
   onDelete?: () => void;
 }) {
   const [form, setForm] = useState(order);
+  const isAdmin = role === "admin";
+  const canEditSale = isAdmin || canConfirmOrder(role);
+  const canEditShip = isAdmin || canUpdateShipping(role);
 
   useEffect(() => setForm(order), [order]);
 
@@ -262,16 +301,21 @@ function OrderDetailForm({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSave({
-          customer_name: form.customer_name,
-          phone: form.phone,
-          address: form.address,
-          combo: form.combo,
-          note: form.note,
-          status: form.status,
-          tracking_code: form.tracking_code,
-          carrier: form.carrier,
-        });
+        const patch: Partial<Order> = {};
+        if (canEditCustomer(role) || isAdmin) {
+          patch.customer_name = form.customer_name;
+          patch.phone = form.phone;
+          patch.address = form.address;
+          patch.combo = form.combo;
+          patch.note = form.note;
+        }
+        if (canEditSale) patch.sale_status = form.sale_status;
+        if (canEditShip) {
+          patch.shipping_status = form.shipping_status;
+          patch.tracking_code = form.tracking_code;
+          patch.carrier = form.carrier;
+        }
+        onSave(patch);
       }}
     >
       {field(
@@ -327,22 +371,43 @@ function OrderDetailForm({
         />
       )}
       {field(
-        "Trạng thái",
+        "Trạng thái Sale",
         <select
-          className="w-full border px-2 py-1.5 bg-white"
-          value={form.status}
+          className="w-full border px-2 py-1.5 bg-white disabled:bg-[#f0ebe3]"
+          value={form.sale_status}
+          disabled={!canEditSale}
           onChange={(e) =>
-            setForm({ ...form, status: e.target.value as OrderStatus })
+            setForm({ ...form, sale_status: e.target.value as SaleStatus })
           }
         >
-          {STATUS_OPTIONS.map((s) => (
+          {SALE_STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>
-              {STATUS_LABELS[s]}
+              {SALE_STATUS_LABELS[s]}
             </option>
           ))}
         </select>
       )}
-      {(canUpdateShipping(role) || role === "admin") &&
+      {field(
+        "Trạng thái vận chuyển",
+        <select
+          className="w-full border px-2 py-1.5 bg-white disabled:bg-[#f0ebe3]"
+          value={form.shipping_status}
+          disabled={!canEditShip}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              shipping_status: e.target.value as ShippingStatus,
+            })
+          }
+        >
+          {SHIPPING_STATUS_OPTIONS.map((s) => (
+            <option key={s} value={s}>
+              {SHIPPING_STATUS_LABELS[s]}
+            </option>
+          ))}
+        </select>
+      )}
+      {canEditShip &&
         field(
           "Mã vận đơn",
           <input
@@ -351,7 +416,7 @@ function OrderDetailForm({
             onChange={(e) => setForm({ ...form, tracking_code: e.target.value })}
           />
         )}
-      {(canUpdateShipping(role) || role === "admin") &&
+      {canEditShip &&
         field(
           "Đơn vị VC",
           <input
@@ -369,56 +434,55 @@ function OrderDetailForm({
         >
           {saving ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
-        {canConfirmOrder(role) && form.status === "moi" && (
+        {canEditSale && form.sale_status === "moi" && (
           <button
             type="button"
             className="px-4 py-2 bg-[#b8956a] text-[#141210] text-sm"
-            onClick={() => onSave({ status: "da_xac_nhan" })}
+            onClick={() => onSave({ sale_status: "da_xac_nhan" })}
           >
             Xác nhận đơn
           </button>
         )}
-        {canConfirmOrder(role) &&
-          (form.status === "moi" || form.status === "da_xac_nhan") && (
+        {canEditSale &&
+          (form.sale_status === "moi" || form.sale_status === "da_xac_nhan") && (
             <>
               <button
                 type="button"
                 className="px-4 py-2 bg-emerald-700 text-white text-sm"
-                onClick={() => onSave({ status: "chot_don" })}
+                onClick={() => onSave({ sale_status: "chot_don" })}
               >
                 Chốt đơn
               </button>
               <button
                 type="button"
                 className="px-4 py-2 border border-orange-300 text-orange-900 text-sm"
-                onClick={() => onSave({ status: "khong_nghe" })}
+                onClick={() => onSave({ sale_status: "khong_nghe" })}
               >
                 Không nghe máy
               </button>
               <button
                 type="button"
                 className="px-4 py-2 border border-rose-300 text-rose-900 text-sm"
-                onClick={() => onSave({ status: "khong_mua" })}
+                onClick={() => onSave({ sale_status: "khong_mua" })}
               >
                 Không mua
               </button>
             </>
           )}
-        {canUpdateShipping(role) &&
-          (form.status === "da_xac_nhan" || form.status === "chot_don") && (
+        {canEditShip && form.shipping_status !== "dang_giao" && (
           <button
             type="button"
             className="px-4 py-2 border text-sm"
-            onClick={() => onSave({ status: "dang_giao" })}
+            onClick={() => onSave({ shipping_status: "dang_giao" })}
           >
             Đang giao
           </button>
         )}
-        {canUpdateShipping(role) && form.status === "dang_giao" && (
+        {canEditShip && form.shipping_status === "dang_giao" && (
           <button
             type="button"
             className="px-4 py-2 border text-sm"
-            onClick={() => onSave({ status: "da_giao" })}
+            onClick={() => onSave({ shipping_status: "da_giao" })}
           >
             Đã giao
           </button>

@@ -40,7 +40,8 @@ export async function POST(request: Request) {
         combo: comboId,
         amount,
         note: note?.trim() || null,
-        status: "moi",
+        sale_status: "moi",
+        shipping_status: "cho_giao",
       })
       .select("id, order_code")
       .single();

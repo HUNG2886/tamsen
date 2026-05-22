@@ -1,14 +1,14 @@
 export type UserRole = "admin" | "sale" | "shipping";
 
-export type OrderStatus =
+export type SaleStatus =
   | "moi"
   | "da_xac_nhan"
   | "chot_don"
-  | "dang_giao"
-  | "da_giao"
   | "khong_nghe"
   | "khong_mua"
   | "huy";
+
+export type ShippingStatus = "cho_giao" | "dang_giao" | "da_giao";
 
 export type ComboId = 1 | 2 | 3;
 
@@ -29,7 +29,8 @@ export interface Order {
   combo: ComboId;
   amount: number;
   note: string | null;
-  status: OrderStatus;
+  sale_status: SaleStatus;
+  shipping_status: ShippingStatus;
   assigned_sale_id: string | null;
   tracking_code: string | null;
   carrier: string | null;

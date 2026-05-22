@@ -1,16 +1,16 @@
 -- Trà Tâm Sen: profiles + orders + RLS
 
 create type public.user_role as enum ('admin', 'sale', 'shipping');
-create type public.order_status as enum (
+create type public.sale_status as enum (
   'moi',
   'da_xac_nhan',
   'chot_don',
-  'dang_giao',
-  'da_giao',
   'khong_nghe',
   'khong_mua',
   'huy'
 );
+
+create type public.shipping_status as enum ('cho_giao', 'dang_giao', 'da_giao');
 
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
@@ -29,7 +29,8 @@ create table public.orders (
   combo smallint not null check (combo between 1 and 3),
   amount integer not null check (amount > 0),
   note text,
-  status public.order_status not null default 'moi',
+  sale_status public.sale_status not null default 'moi',
+  shipping_status public.shipping_status not null default 'cho_giao',
   assigned_sale_id uuid references public.profiles (id) on delete set null,
   tracking_code text,
   carrier text,
@@ -37,7 +38,8 @@ create table public.orders (
   updated_at timestamptz not null default now()
 );
 
-create index orders_status_idx on public.orders (status);
+create index orders_sale_status_idx on public.orders (sale_status);
+create index orders_shipping_status_idx on public.orders (shipping_status);
 create index orders_created_at_idx on public.orders (created_at desc);
 create index orders_phone_idx on public.orders (phone);
 create index orders_order_code_idx on public.orders (order_code);
