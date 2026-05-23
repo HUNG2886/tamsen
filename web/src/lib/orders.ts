@@ -141,5 +141,13 @@ export function canManageUsers(role: UserRole): boolean {
   return role === "admin";
 }
 
+export function canViewAnalytics(role: UserRole): boolean {
+  return role === "admin";
+}
+
+export function canManageBackups(role: UserRole): boolean {
+  return role === "admin";
+}
+
 export const PRODUCT_IMAGE =
   "https://statics.pancake.vn/web-media-262/f4/83/cd/50/271b317887e3d8d598b04db4b8437666a0c27782bf3cd01ad6d3014b-w:2048-h:2048-l:5341356-t:image/png.png";

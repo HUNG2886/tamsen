@@ -44,3 +44,11 @@ export interface OrderListResult {
   page: number;
   pageSize: number;
 }
+
+export interface OrderSnapshot {
+  id: string;
+  label: string;
+  order_count: number;
+  created_by: string | null;
+  created_at: string;
+}

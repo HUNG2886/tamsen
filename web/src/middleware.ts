@@ -73,7 +73,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && path.startsWith("/admin/users")) {
+  const adminOnly =
+    path.startsWith("/admin/users") ||
+    path.startsWith("/admin/analytics") ||
+    path.startsWith("/admin/backup");
+
+  if (user && adminOnly) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")

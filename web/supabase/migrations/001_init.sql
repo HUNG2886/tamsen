@@ -40,6 +40,17 @@ create table public.orders (
 
 create index orders_sale_status_idx on public.orders (sale_status);
 create index orders_shipping_status_idx on public.orders (shipping_status);
+
+create table public.order_snapshots (
+  id uuid primary key default gen_random_uuid(),
+  label text not null,
+  order_count integer not null check (order_count >= 0),
+  payload jsonb not null,
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index order_snapshots_created_at_idx on public.order_snapshots (created_at desc);
 create index orders_created_at_idx on public.orders (created_at desc);
 create index orders_phone_idx on public.orders (phone);
 create index orders_order_code_idx on public.orders (order_code);
@@ -82,6 +93,7 @@ for each row execute function public.handle_new_user();
 
 alter table public.profiles enable row level security;
 alter table public.orders enable row level security;
+alter table public.order_snapshots enable row level security;
 
 create or replace function public.current_user_role()
 returns public.user_role
@@ -131,6 +143,11 @@ using (public.current_user_role() = 'shipping');
 create policy orders_delete_admin on public.orders
 for delete to authenticated
 using (public.current_user_role() = 'admin');
+
+create policy order_snapshots_admin on public.order_snapshots
+for all to authenticated
+using (public.current_user_role() = 'admin')
+with check (public.current_user_role() = 'admin');
 
 -- Allow anon to insert orders (landing form) — controlled via API with service role instead.
 -- Public POST uses service role in Next.js API route.

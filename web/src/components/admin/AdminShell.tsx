@@ -30,6 +30,8 @@ export function AdminShell({
 
   const links = [
     { href: "/admin/orders", label: "Đơn hàng", roles: ["admin", "sale", "shipping"] as UserRole[] },
+    { href: "/admin/analytics", label: "Số liệu", roles: ["admin"] as UserRole[] },
+    { href: "/admin/backup", label: "Sao lưu", roles: ["admin"] as UserRole[] },
     { href: "/admin/users", label: "Người dùng", roles: ["admin"] as UserRole[] },
   ];
 
