@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { isSchemaMismatchError } from "@/lib/db-schema";
 import { getComboTotalAmount, generateOrderCode } from "@/lib/orders";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ComboId } from "@/lib/types";
@@ -30,21 +31,45 @@ export async function POST(request: Request) {
     const supabase = createAdminClient();
     const order_code = generateOrderCode();
 
-    const { data, error } = await supabase
+    const base = {
+      order_code,
+      customer_name: name.trim(),
+      phone: phone.replace(/\s/g, ""),
+      address: address.trim(),
+      combo: comboId,
+      amount,
+      note: note?.trim() || null,
+    };
+
+    let data: { id: string; order_code: string } | null = null;
+    let error: { message: string } | null = null;
+
+    const modern = await supabase
       .from("orders")
       .insert({
-        order_code,
-        customer_name: name.trim(),
-        phone: phone.replace(/\s/g, ""),
-        address: address.trim(),
-        combo: comboId,
-        amount,
-        note: note?.trim() || null,
+        ...base,
         sale_status: "moi",
         shipping_status: "cho_giao",
       })
       .select("id, order_code")
       .single();
+
+    data = modern.data;
+    error = modern.error;
+
+    if (error && isSchemaMismatchError(error.message)) {
+      console.warn("[orders] legacy schema fallback:", error.message);
+      const legacy = await supabase
+        .from("orders")
+        .insert({
+          ...base,
+          status: "moi",
+        })
+        .select("id, order_code")
+        .single();
+      data = legacy.data;
+      error = legacy.error;
+    }
 
     if (error) {
       console.error("[orders]", error);
@@ -56,11 +81,18 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      order_code: data.order_code,
-      id: data.id,
+      order_code: data!.order_code,
+      id: data!.id,
     });
   } catch (e) {
     console.error(e);
+    const msg = e instanceof Error ? e.message : "";
+    if (msg.includes("SUPABASE_SERVICE_ROLE_KEY")) {
+      return NextResponse.json(
+        { error: "Hệ thống chưa cấu hình đầy đủ. Liên hệ quản trị viên." },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
   }
 }
