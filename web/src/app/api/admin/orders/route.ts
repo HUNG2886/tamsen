@@ -3,6 +3,8 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { SaleStatus, ShippingStatus } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const session = await requireProfile(["admin", "sale", "shipping"]);
   if (!session) {

@@ -89,3 +89,14 @@ create policy order_snapshots_admin on public.order_snapshots
 for all to authenticated
 using (public.current_user_role() = 'admin')
 with check (public.current_user_role() = 'admin');
+
+-- Realtime đơn hàng (admin tự cập nhật)
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and tablename = 'orders'
+  ) then
+    alter publication supabase_realtime add table public.orders;
+  end if;
+end $$;

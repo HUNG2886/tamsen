@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   COMBO_LABELS,
   SALE_STATUS_LABELS,
@@ -13,7 +13,10 @@ import {
   canUpdateShipping,
   formatVnd,
 } from "@/lib/orders";
+import { createClient } from "@/lib/supabase/client";
 import type { Order, SaleStatus, ShippingStatus, UserRole } from "@/lib/types";
+
+const POLL_MS = 15_000;
 
 function saleStatusBadge(status: SaleStatus) {
   const colors: Record<SaleStatus, string> = {
@@ -54,30 +57,85 @@ export function OrdersPanel({ role }: { role: UserRole }) {
     "all"
   );
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastSync, setLastSync] = useState<Date | null>(null);
   const [selected, setSelected] = useState<Order | null>(null);
   const [saving, setSaving] = useState(false);
+  const selectedIdRef = useRef<string | null>(null);
   const pageSize = 20;
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams({
-      page: String(page),
-      pageSize: String(pageSize),
-    });
-    if (q) params.set("q", q);
-    if (saleStatus !== "all") params.set("sale_status", saleStatus);
-    if (shippingStatus !== "all") params.set("shipping_status", shippingStatus);
-    const res = await fetch(`/api/admin/orders?${params}`);
-    const data = await res.json();
-    if (res.ok) {
-      setOrders(data.orders);
-      setTotal(data.total);
-    }
-    setLoading(false);
-  }, [page, q, saleStatus, shippingStatus]);
+  useEffect(() => {
+    selectedIdRef.current = selected?.id ?? null;
+  }, [selected?.id]);
+
+  const load = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      const silent = opts?.silent ?? false;
+      if (silent) setRefreshing(true);
+      else setLoading(true);
+
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+      if (q) params.set("q", q);
+      if (saleStatus !== "all") params.set("sale_status", saleStatus);
+      if (shippingStatus !== "all") params.set("shipping_status", shippingStatus);
+
+      try {
+        const res = await fetch(`/api/admin/orders?${params}`, { cache: "no-store" });
+        const data = await res.json();
+        if (res.ok) {
+          setOrders(data.orders);
+          setTotal(data.total);
+          setLastSync(new Date());
+          const sid = selectedIdRef.current;
+          if (sid) {
+            const fresh = (data.orders as Order[]).find((o) => o.id === sid);
+            if (fresh) setSelected(fresh);
+          }
+        }
+      } finally {
+        if (silent) setRefreshing(false);
+        else setLoading(false);
+      }
+    },
+    [page, q, saleStatus, shippingStatus]
+  );
 
   useEffect(() => {
     load();
+  }, [load]);
+
+  useEffect(() => {
+    const tick = () => {
+      if (document.visibilityState === "visible") load({ silent: true });
+    };
+    const id = window.setInterval(tick, POLL_MS);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") load({ silent: true });
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [load]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("admin-orders")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => load({ silent: true })
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, [load]);
 
   async function saveOrder(patch: Partial<Order>) {
@@ -111,9 +169,20 @@ export function OrdersPanel({ role }: { role: UserRole }) {
 
   return (
     <div>
-      <header className="mb-6">
-        <h1 className="font-serif text-2xl font-semibold">Đơn hàng</h1>
-        <p className="text-sm text-[#6f665c] mt-1">{total} đơn trong hệ thống</p>
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-serif text-2xl font-semibold">Đơn hàng</h1>
+          <p className="text-sm text-[#6f665c] mt-1">{total} đơn trong hệ thống</p>
+        </div>
+        <p className="text-xs text-[#6f665c]">
+          {refreshing ? (
+            <span className="text-[#4d6358]">Đang cập nhật…</span>
+          ) : lastSync ? (
+            <>Tự động cập nhật · {lastSync.toLocaleTimeString("vi-VN")}</>
+          ) : (
+            "Tự động cập nhật"
+          )}
+        </p>
       </header>
 
       <div className="flex flex-wrap gap-3 mb-4">
@@ -160,7 +229,7 @@ export function OrdersPanel({ role }: { role: UserRole }) {
         </select>
         <button
           type="button"
-          onClick={load}
+          onClick={() => load()}
           className="px-4 py-2 bg-[#4d6358] text-white text-sm font-medium"
         >
           Tìm kiếm

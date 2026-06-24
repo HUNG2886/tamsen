@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/env";
-import { createClient } from "@/lib/supabase/client";
 
 function LoginForm() {
   const router = useRouter();
@@ -17,50 +16,28 @@ function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isSupabaseConfigured()) {
-      router.push("/admin/setup");
-      return;
-    }
     setLoading(true);
     setError("");
-    let supabase;
     try {
-      supabase = createClient();
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Đăng nhập thất bại");
+        return;
+      }
+      router.push(next);
+      router.refresh();
     } catch {
-      setLoading(false);
-      setError("Chưa cấu hình Supabase. Xem hướng dẫn tại /admin/setup");
-      return;
-    }
-    const { data, error: err } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (err) {
-      setLoading(false);
       setError(
-        err.message.includes("Invalid API key")
-          ? "Sai Supabase API key trên Vercel. Kiểm tra NEXT_PUBLIC_SUPABASE_URL và NEXT_PUBLIC_SUPABASE_ANON_KEY (anon public), sau đó Redeploy."
-          : err.message.includes("Invalid login credentials")
-            ? "Email hoặc mật khẩu không đúng. Chạy: npm run seed:admin trong thư mục web."
-            : err.message
+        "Không kết nối được máy chủ. Kiểm tra mạng hoặc đợi Vercel deploy xong rồi thử lại."
       );
-      return;
+    } finally {
+      setLoading(false);
     }
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
-    setLoading(false);
-    if (!profile) {
-      await supabase.auth.signOut();
-      setError(
-        "Tài khoản chưa có quyền staff. Chạy npm run seed:admin trong thư mục web (sau khi cấu hình .env.local)."
-      );
-      return;
-    }
-    router.push(next);
-    router.refresh();
   }
 
   return (
