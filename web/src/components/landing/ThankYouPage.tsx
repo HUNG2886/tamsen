@@ -45,17 +45,6 @@ export function ThankYouPage() {
           </li>
         </ul>
 
-        <div className="thank-page__contact">
-          <p>Cần hỗ trợ ngay?</p>
-          <p className="thank-page__tel">
-            <a href="tel:0916188330">0916 188 330</a>
-            <span> · </span>
-            <a href="https://zalo.me/0916188330" target="_blank" rel="noopener noreferrer">
-              Zalo
-            </a>
-          </p>
-        </div>
-
         <div className="thank-page__actions">
           <Link href="/" className="btn btn-gold btn-wide">
             Về trang chủ
