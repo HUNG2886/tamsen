@@ -131,7 +131,7 @@ export function LandingPage() {
             </a>
           </div>
           <ul className="hero-chips reveal" aria-label="Cam kết">
-            <li>100% tự nhiên</li>
+            <li>Nguyên liệu tự nhiên</li>
             <li>Free ship từ 2 hũ</li>
             <li>120g / hũ</li>
           </ul>
@@ -221,7 +221,7 @@ export function LandingPage() {
           </header>
           <ul className="benefit-pillars">
             {[
-              ["眠", "Giấc sâu", "An thần, dễ chìm vào giấc tự nhiên"],
+              ["眠", "Giấc sâu", "Ngủ ngon, dễ chìm vào giấc tự nhiên"],
               ["静", "Tâm an", "Giảm bồn chồn sau ngày dài"],
               ["清", "Thanh nhiệt", "Thảo dược thanh lọc nhẹ"],
               ["香", "Hương sen", "Vị dịu, không gắt đắng"],
@@ -251,7 +251,7 @@ export function LandingPage() {
             </header>
             <dl className="craft-specs">
               {[
-                ["Nguồn", "100% tâm sen Bắc Lý, Ninh Bình"],
+                ["Nguồn", "Tâm sen Bắc Lý, Ninh Bình"],
                 ["Chế biến", "Sấy sạch, không hóa chất bảo quản"],
                 ["Bao bì", "Hũ thủy tinh, nắp vàng antique"],
                 ["Khối lượng", "120g · Hạn dùng 12 tháng"],
@@ -474,8 +474,8 @@ export function LandingPage() {
           <p className="footer-brand">Trà Tâm Sen</p>
           <p className="footer-place">Tabeyo · Bắc Lý, Ninh Bình</p>
           <p className="footer-tel">
-            <a href="tel:0916188330">0916 188 330</a> ·{" "}
-            <a href="https://zalo.me/0916188330" target="_blank" rel="noopener noreferrer">
+            <a href="tel:0365888815">0365 888 815</a> ·{" "}
+            <a href="https://zalo.me/0365888815" target="_blank" rel="noopener noreferrer">
               Zalo
             </a>
           </p>
